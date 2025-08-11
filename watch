@@ -1,0 +1,60 @@
+
+> clone-tabnews@1.0.0 test
+> npm run services:up && concurrently -n next,jest --hide next -k -s command-jest "next dev" "jest --runInBand --verbose"
+
+
+> clone-tabnews@1.0.0 services:up
+> docker compose -f infra/compose.yaml up -d
+
+[jest] [dotenv@17.2.1] injecting env (7) from .env.development -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[jest] PASS tests/integration/api/v1/migrations/post.test.js
+[jest]   POST /api/v1/migrations
+[jest]     Anonymous user
+[jest]       Running pending migrations
+[jest]         ✓ For the first time (227 ms)
+[jest]         ✓ For the second time (44 ms)
+[jest] 
+[jest] PASS tests/integration/api/v1/users/post.test.js
+[jest]   POST /api/v1/users
+[jest]     Anonymous user
+[jest]       ✓ With unique and valid data (390 ms)
+[jest]       ✓ With duplicated 'email' (66 ms)
+[jest]       ✓ With duplicated 'username' (70 ms)
+[jest] 
+[jest] PASS tests/integration/api/v1/users/[username]/get.test.js
+[jest]   GET /api/v1/users/[username]
+[jest]     Anonymous user
+[jest]       ✓ With exact case match (162 ms)
+[jest]       ✓ With case mismatch (67 ms)
+[jest]       ✓ With nonexistent username (18 ms)
+[jest] 
+[jest] PASS tests/integration/api/v1/migrations/get.test.js
+[jest]   GET /api/v1/migrations
+[jest]     Anonymous user
+[jest]       ✓ Retrieving pending migrations (46 ms)
+[jest] 
+[jest] PASS tests/integration/api/v1/status/get.test.js
+[jest]   GET /api/v1/status
+[jest]     Anonymous user
+[jest]       ✓ Retrieving current system status (41 ms)
+[jest] 
+[jest] PASS tests/integration/api/v1/status/post.test.js
+[jest]   POST /api/v1/status
+[jest]     Anonymous user
+[jest]       ✓ Retrieving current system status (9 ms)
+[jest] 
+[jest] Test Suites: 6 passed, 6 total
+[jest] Tests:       11 passed, 11 total
+[jest] Snapshots:   0 total
+[jest] Time:        4.99 s, estimated 6 s
+[jest] Ran all test suites.
+[jest] jest --runInBand --verbose exited with code 0
+--> Sending SIGTERM to other processes..
+
+> clone-tabnews@1.0.0 posttest
+> npm run services:stop
+
+
+> clone-tabnews@1.0.0 services:stop
+> docker compose -f infra/compose.yaml stop
+
