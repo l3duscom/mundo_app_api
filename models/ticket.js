@@ -171,10 +171,10 @@ async function create(ticketInputValues, userId, companyId) {
       ticketInputValues.unit_value || 0,
       ticketInputValues.price,
       ticketInputValues.currency || "BRL",
-      ticketInputValues.quantity,
+      ticketInputValues.quantity || 1,
       ticketInputValues.stock_total,
       ticketInputValues.stock_sold || 0,
-      ticketInputValues.type,
+      ticketInputValues.type || "individual",
       ticketInputValues.day,
       ticketInputValues.category,
       ticketInputValues.cupom,
@@ -271,6 +271,144 @@ async function updateStock(id, soldQuantity, companyId) {
   return results.rows[0];
 }
 
+async function deleteById(id, companyId) {
+  // First check if ticket has any sales (stock_sold > 0)
+  const currentTicket = await findOneById(id, companyId);
+  
+  if (currentTicket.stock_sold > 0) {
+    throw new ValidationError({
+      message: "Não é possível excluir um ingresso que já possui vendas realizadas.",
+      action: "Desative o ingresso ao invés de excluí-lo para manter o histórico de vendas.",
+    });
+  }
+
+  const results = await database.query({
+    text: `
+      DELETE FROM tickets
+      WHERE id = $1 AND company_id = $2
+      RETURNING *
+      ;`,
+    values: [id, companyId],
+  });
+
+  return results.rows[0];
+}
+
+async function cloneTicket(ticketId, cloneOptions, userId, companyId) {
+  // Get original ticket
+  const originalTicket = await findOneById(ticketId, companyId);
+  
+  // Calculate new price with percentage increase
+  const priceIncrease = cloneOptions.priceIncreasePercentage || 0;
+  const newPrice = originalTicket.price * (1 + priceIncrease / 100);
+  const newUnitValue = originalTicket.unit_value * (1 + priceIncrease / 100);
+  
+  // Generate new unique code
+  let newCode = `${originalTicket.code}-L${cloneOptions.batchNo || (originalTicket.batch_no + 1)}`;
+  let counter = 1;
+  while (await codeExists(newCode, companyId)) {
+    counter++;
+    newCode = `${originalTicket.code}-L${cloneOptions.batchNo || (originalTicket.batch_no + 1)}-${counter}`;
+  }
+
+  // Create cloned ticket
+  const clonedTicketData = {
+    ...originalTicket,
+    event_id: cloneOptions.newEventId || originalTicket.event_id,
+    code: newCode,
+    unit_value: newUnitValue,
+    price: newPrice,
+    stock_total: cloneOptions.newStock || originalTicket.stock_total,
+    stock_sold: 0, // Reset stock sold
+    batch_no: cloneOptions.batchNo || (originalTicket.batch_no + 1),
+    batch_date: cloneOptions.batchDate || null,
+    sales_start_at: cloneOptions.salesStartAt || originalTicket.sales_start_at,
+    sales_end_at: cloneOptions.salesEndAt || originalTicket.sales_end_at,
+  };
+
+  // Remove fields that shouldn't be cloned
+  delete clonedTicketData.id;
+  delete clonedTicketData.created_at;
+  delete clonedTicketData.updated_at;
+  delete clonedTicketData.event_name;
+  delete clonedTicketData.event_slug;
+  delete clonedTicketData.created_by_username;
+
+  return await create(clonedTicketData, userId, companyId);
+}
+
+async function cloneBatchTickets(eventId, cloneOptions, userId, companyId) {
+  // Get all tickets from the original event
+  const originalTickets = await findAllByEvent(eventId, companyId);
+  
+  if (originalTickets.length === 0) {
+    throw new NotFoundError({
+      message: "Nenhum ingresso encontrado para o evento especificado.",
+      action: "Verifique se o evento possui ingressos cadastrados.",
+    });
+  }
+
+  const clonedTickets = [];
+  const priceIncrease = cloneOptions.priceIncreasePercentage || 0;
+  
+  for (const originalTicket of originalTickets) {
+    // Calculate new price with percentage increase
+    const newPrice = originalTicket.price * (1 + priceIncrease / 100);
+    const newUnitValue = originalTicket.unit_value * (1 + priceIncrease / 100);
+    
+    // Generate new unique code
+    let newCode = `${originalTicket.code}-L${cloneOptions.batchNo || (originalTicket.batch_no + 1)}`;
+    let counter = 1;
+    while (await codeExists(newCode, companyId)) {
+      counter++;
+      newCode = `${originalTicket.code}-L${cloneOptions.batchNo || (originalTicket.batch_no + 1)}-${counter}`;
+    }
+
+    // Create cloned ticket data
+    const clonedTicketData = {
+      ...originalTicket,
+      event_id: cloneOptions.newEventId || originalTicket.event_id,
+      code: newCode,
+      unit_value: newUnitValue,
+      price: newPrice,
+      stock_total: cloneOptions.newStock || originalTicket.stock_total,
+      stock_sold: 0, // Reset stock sold
+      batch_no: cloneOptions.batchNo || (originalTicket.batch_no + 1),
+      batch_date: cloneOptions.batchDate || null,
+      sales_start_at: cloneOptions.salesStartAt || originalTicket.sales_start_at,
+      sales_end_at: cloneOptions.salesEndAt || originalTicket.sales_end_at,
+    };
+
+    // Remove fields that shouldn't be cloned
+    delete clonedTicketData.id;
+    delete clonedTicketData.created_at;
+    delete clonedTicketData.updated_at;
+    delete clonedTicketData.event_name;
+    delete clonedTicketData.event_slug;
+    delete clonedTicketData.created_by_username;
+    delete clonedTicketData.stock_available;
+
+    const clonedTicket = await create(clonedTicketData, userId, companyId);
+    clonedTickets.push(clonedTicket);
+  }
+
+  return clonedTickets;
+}
+
+async function codeExists(code, companyId) {
+  const results = await database.query({
+    text: `
+      SELECT 1
+      FROM tickets
+      WHERE code = $1 AND company_id = $2
+      LIMIT 1
+      ;`,
+    values: [code, companyId],
+  });
+
+  return results.rowCount > 0;
+}
+
 async function validateUniqueCode(code, companyId) {
   const results = await database.query({
     text: `
@@ -301,6 +439,9 @@ const ticket = {
   findAllByCompany,
   update,
   updateStock,
+  deleteById,
+  cloneTicket,
+  cloneBatchTickets,
 };
 
 export default ticket;

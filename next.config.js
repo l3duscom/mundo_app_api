@@ -2,8 +2,16 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Configurações específicas para produção
+  // Headers condicionais baseados no ambiente
   async headers() {
+    const isDev = process.env.NODE_ENV === "development";
+    
+    if (!isDev) {
+      // Em produção, não retornar headers específicos do Swagger
+      return [];
+    }
+    
+    // Em desenvolvimento, configurações do Swagger
     return [
       {
         source: '/api-docs',
@@ -34,9 +42,10 @@ const nextConfig = {
     ];
   },
 
-  // Configurações de webpack para suportar swagger-ui em produção
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
+  // Configurações de webpack apenas para desenvolvimento
+  webpack: (config, { isServer, dev }) => {
+    if (!isServer && dev) {
+      // Apenas em desenvolvimento, configurar fallbacks para Swagger
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
@@ -46,11 +55,6 @@ const nextConfig = {
     }
     
     return config;
-  },
-
-  // Configurações para SSR
-  experimental: {
-    esmExternals: true
   }
 };
 

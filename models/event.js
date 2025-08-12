@@ -107,7 +107,36 @@ async function findAllByCompany(companyId, filters = {}) {
 }
 
 async function create(eventInputValues, userId, companyId) {
-  await validateUniqueSlug(eventInputValues.slug, companyId);
+  // Generate slug automatically if not provided
+  let slug;
+  if (!eventInputValues.slug) {
+    slug = await generateUniqueSlug(eventInputValues.event_name, companyId);
+  } else {
+    await validateUniqueSlug(eventInputValues.slug, companyId);
+    slug = eventInputValues.slug;
+  }
+
+  // Convert visibility string to integer
+  let visibilityValue = null;
+  if (eventInputValues.visibility) {
+    const visibilityMap = {
+      'public': 1,
+      'private': 2,
+      'draft': 3,
+      'hidden': 4
+    };
+    visibilityValue = visibilityMap[eventInputValues.visibility] || null;
+  }
+
+  // Convert integration string to integer if needed
+  let integrationValue = null;
+  if (eventInputValues.integration) {
+    if (typeof eventInputValues.integration === 'string') {
+      integrationValue = parseInt(eventInputValues.integration) || null;
+    } else {
+      integrationValue = eventInputValues.integration;
+    }
+  }
 
   const results = await database.query({
     text: `
@@ -134,19 +163,19 @@ async function create(eventInputValues, userId, companyId) {
       userId,
       companyId,
       eventInputValues.event_name,
-      eventInputValues.slug,
+      slug,
       eventInputValues.free || false,
       eventInputValues.start_date,
       eventInputValues.start_time,
       eventInputValues.end_date,
       eventInputValues.end_time,
-      eventInputValues.integration,
+      integrationValue,
       eventInputValues.description,
       eventInputValues.code,
       eventInputValues.nomenclature,
       eventInputValues.producer,
       eventInputValues.own,
-      eventInputValues.visibility,
+      visibilityValue,
       eventInputValues.avatar,
       eventInputValues.cover,
       eventInputValues.active !== undefined ? eventInputValues.active : true,
@@ -233,21 +262,85 @@ async function update(id, eventInputValues, companyId) {
   return results.rows[0];
 }
 
-async function validateUniqueSlug(slug, companyId) {
+async function deleteById(id, companyId) {
+  // First check if event has tickets
+  const ticketsResults = await database.query({
+    text: `
+      SELECT COUNT(*) as ticket_count
+      FROM tickets
+      WHERE event_id = $1 AND is_active = true
+      ;`,
+    values: [id],
+  });
+
+  if (parseInt(ticketsResults.rows[0].ticket_count) > 0) {
+    throw new ValidationError({
+      message: "Não é possível excluir um evento que possui ingressos ativos.",
+      action: "Desative ou exclua todos os ingressos deste evento antes de excluí-lo.",
+    });
+  }
+
+  // Verify event exists and belongs to company
+  await findOneById(id, companyId);
+
   const results = await database.query({
     text: `
-      SELECT
-        slug
-      FROM
-        events
-      WHERE
-        LOWER(slug) = LOWER($1)
+      DELETE FROM events
+      WHERE id = $1 AND company_id = $2
+      RETURNING *
+      ;`,
+    values: [id, companyId],
+  });
+
+  return results.rows[0];
+}
+
+function generateSlugFromText(text) {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+    .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+    .trim()
+    .replace(/\s+/g, '-') // Substitui espaços por hífens
+    .replace(/-+/g, '-') // Remove hífens múltiplos
+    .substring(0, 128); // Limita a 128 caracteres
+}
+
+async function generateUniqueSlug(eventName, companyId) {
+  let baseSlug = generateSlugFromText(eventName);
+  let slug = baseSlug;
+  let counter = 1;
+
+  // Verifica se o slug já existe e gera variações até encontrar um único
+  while (await slugExists(slug, companyId)) {
+    counter++;
+    // Garante que o slug + sufixo não passe de 128 caracteres
+    const suffix = `-${counter}`;
+    const maxBaseLength = 128 - suffix.length;
+    slug = baseSlug.substring(0, maxBaseLength) + suffix;
+  }
+
+  return slug;
+}
+
+async function slugExists(slug, companyId) {
+  const results = await database.query({
+    text: `
+      SELECT 1
+      FROM events
+      WHERE LOWER(slug) = LOWER($1)
         AND company_id = $2
+      LIMIT 1
       ;`,
     values: [slug, companyId],
   });
 
-  if (results.rowCount > 0) {
+  return results.rowCount > 0;
+}
+
+async function validateUniqueSlug(slug, companyId) {
+  if (await slugExists(slug, companyId)) {
     throw new ValidationError({
       message: "O slug informado já está sendo utilizado nesta empresa.",
       action: "Utilize outro slug para realizar esta operação.",
@@ -261,6 +354,7 @@ const event = {
   findOneBySlug,
   findAllByCompany,
   update,
+  deleteById,
 };
 
 export default event;

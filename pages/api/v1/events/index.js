@@ -62,7 +62,7 @@ import event from "models/event.js";
  *         application/json:
  *           schema:
  *             type: object
- *             required: [event_name, slug]
+ *             required: [event_name]
  *             properties:
  *               event_name:
  *                 type: string
@@ -72,7 +72,7 @@ import event from "models/event.js";
  *               slug:
  *                 type: string
  *                 maxLength: 128
- *                 description: Slug único do evento (por empresa)
+ *                 description: Slug único do evento (opcional - gerado automaticamente se não fornecido)
  *                 example: "show-banda-xyz"
  *               free:
  *                 type: boolean
@@ -126,6 +126,15 @@ import event from "models/event.js";
  *                 type: boolean
  *                 default: true
  *                 description: Se o evento está ativo
+ *               visibility:
+ *                 type: string
+ *                 enum: ["public", "private", "draft", "hidden"]
+ *                 description: Visibilidade do evento
+ *                 example: "public"
+ *               integration:
+ *                 type: integer
+ *                 description: ID da integração (se aplicável)
+ *                 example: 1
  *     responses:
  *       201:
  *         description: Evento criado com sucesso
