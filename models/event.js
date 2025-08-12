@@ -118,13 +118,14 @@ async function create(eventInputValues, userId, companyId) {
           producer, own, visibility, avatar, cover, active, fee, subject,
           category, zip_code, place, address, number, neighborhood, city, state,
           meta_pixel_id, meta_pixel_view_content, meta_pixel_add_to_cart,
-          meta_pixel_initiate_checkout, meta_pixel_purchase, meta_pixel_lead
+          meta_pixel_initiate_checkout, meta_pixel_purchase, meta_pixel_lead,
+          created_at, updated_at
         )
       VALUES
         (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
           $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28,
-          $29, $30, $31, $32, $33, $34, $35, $36
+          $29, $30, $31, $32, $33, $34, $35, timezone('utc', now()), timezone('utc', now())
         )
       RETURNING
         *

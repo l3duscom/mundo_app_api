@@ -96,6 +96,7 @@ async function getHandler(request, response) {
 
   // Remove password from response
   const usersWithoutPassword = users.map((u) => {
+    // eslint-disable-next-line no-unused-vars
     const { password: _password, ...userWithoutPassword } = u;
     return userWithoutPassword;
   });
@@ -113,6 +114,7 @@ async function postHandler(request, response) {
   const newUser = await user.create(userInputValues);
 
   // Remove password from response
+  // eslint-disable-next-line no-unused-vars
   const { password: _password, ...newUserWithoutPassword } = newUser;
 
   return response.status(201).json(newUserWithoutPassword);

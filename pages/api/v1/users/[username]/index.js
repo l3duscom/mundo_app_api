@@ -20,6 +20,7 @@ async function getHandler(request, response) {
   const userFound = await user.findOneByUsername(username, companyId);
 
   // Remove password from response
+  // eslint-disable-next-line no-unused-vars
   const { password: _password, ...userWithoutPassword } = userFound;
 
   return response.status(200).json(userWithoutPassword);
@@ -40,6 +41,7 @@ async function patchHandler(request, response) {
   );
 
   // Remove password from response
+  // eslint-disable-next-line no-unused-vars
   const { password: _password, ...updatedUserWithoutPassword } = updatedUser;
 
   return response.status(200).json(updatedUserWithoutPassword);
