@@ -20,7 +20,7 @@ async function getHandler(request, response) {
   const userFound = await user.findOneByUsername(username, companyId);
 
   // Remove password from response
-  const { password, ...userWithoutPassword } = userFound;
+  const { password: _password, ...userWithoutPassword } = userFound;
 
   return response.status(200).json(userWithoutPassword);
 }
@@ -40,7 +40,7 @@ async function patchHandler(request, response) {
   );
 
   // Remove password from response
-  const { password, ...updatedUserWithoutPassword } = updatedUser;
+  const { password: _password, ...updatedUserWithoutPassword } = updatedUser;
 
   return response.status(200).json(updatedUserWithoutPassword);
 }
