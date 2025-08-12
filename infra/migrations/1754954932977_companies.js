@@ -1,42 +1,52 @@
 exports.up = (pgm) => {
-  pgm.createTable("clients", {
+  pgm.createTable("companies", {
     id: {
       type: "uuid",
       primaryKey: true,
       default: pgm.func("gen_random_uuid()"),
     },
 
-    user_id: {
-      type: "uuid",
-      notNull: true,
-    },
-
-    company_id: {
-      type: "uuid",
-      notNull: true,
-    },
-
-    address_id: {
-      type: "uuid",
-    },
-
     name: {
-      type: "varchar(30)",
+      type: "varchar(255)",
       notNull: true,
     },
 
-    cpfcnpj: {
+    slug: {
+      type: "varchar(100)",
+      notNull: true,
+      unique: true,
+    },
+
+    cnpj: {
       type: "varchar(14)",
       notNull: true,
+      unique: true,
     },
 
-    premium: {
+    subscription_plan: {
+      type: "varchar(20)",
+      notNull: true,
+      default: "free",
+    },
+
+    subscription_status: {
+      type: "varchar(20)",
+      notNull: true,
+      default: "active",
+    },
+
+    settings: {
+      type: "jsonb",
+      notNull: true,
+      default: pgm.func("'{}'::jsonb"),
+    },
+
+    is_active: {
       type: "boolean",
       notNull: true,
       default: true,
     },
 
-    // Why timestamp with timezone? https://justatheory.com/2012/04/postgres-use-timestamptz/
     created_at: {
       type: "timestamptz",
       notNull: true,
@@ -49,6 +59,7 @@ exports.up = (pgm) => {
       default: pgm.func("timezone('utc', now())"),
     },
   });
+
 };
 
 exports.down = false;

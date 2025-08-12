@@ -11,6 +11,11 @@ exports.up = (pgm) => {
       notNull: true,
     },
 
+    company_id: {
+      type: "uuid",
+      notNull: true,
+    },
+
     event_name: {
       type: "varchar(128)",
       notNull: true,

@@ -1,5 +1,5 @@
 {
-  "name": "clone-tabnews",
+  "name": "mundo-app-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -33,8 +33,11 @@
     "pg": "8.16.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-react": "^5.27.1",
     "swr": "2.2.5",
-    "uuid": "11.1.0"
+    "uuid": "11.1.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@faker-js/faker": "9.7.0",

@@ -2,6 +2,51 @@ import { createRouter } from "next-connect";
 import database from "infra/database";
 import controller from "infra/controller.js";
 
+/**
+ * @swagger
+ * /api/v1/status:
+ *   get:
+ *     summary: Status da API
+ *     description: |
+ *       Retorna o status da API e informações sobre o banco de dados.
+ *       Esta rota é pública e não requer autenticação.
+ *     tags:
+ *       - System
+ *     responses:
+ *       200:
+ *         description: Status da API retornado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 updated_at:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Timestamp da resposta
+ *                   example: "2024-01-01T12:00:00.000Z"
+ *                 dependencies:
+ *                   type: object
+ *                   properties:
+ *                     database:
+ *                       type: object
+ *                       properties:
+ *                         version:
+ *                           type: string
+ *                           description: Versão do PostgreSQL
+ *                           example: "15.4"
+ *                         max_connections:
+ *                           type: integer
+ *                           description: Máximo de conexões configuradas
+ *                           example: 100
+ *                         opened_connections:
+ *                           type: integer
+ *                           description: Conexões atualmente abertas
+ *                           example: 5
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+
 const router = createRouter();
 
 router.get(getHandler);

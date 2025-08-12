@@ -6,11 +6,15 @@ exports.up = (pgm) => {
       default: pgm.func("gen_random_uuid()"),
     },
 
+    company_id: {
+      type: "uuid",
+      notNull: true,
+    },
+
     // For reference, GitHub limits usernames to 39 characters.
     username: {
       type: "varchar(30)",
       notNull: true,
-      unique: true,
     },
 
     // Why 254 in length? https://stackoverflow.com/a/1199238
@@ -24,6 +28,12 @@ exports.up = (pgm) => {
     password: {
       type: "varchar(60)",
       notNull: true,
+    },
+
+    role: {
+      type: "varchar(20)",
+      notNull: true,
+      default: "admin",
     },
 
     status: {

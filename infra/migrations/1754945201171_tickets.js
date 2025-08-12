@@ -11,30 +11,29 @@ exports.up = (pgm) => {
       notNull: true,
     },
 
+    company_id: {
+      type: "uuid",
+      notNull: true,
+    },
+
     event_id: {
-      type: "integer",
+      type: "uuid",
       notNull: true,
     },
 
     parent_ticket_id: {
-      type: "integer",
+      type: "uuid",
       notNull: false,
     },
 
     code: {
       type: "varchar(128)",
       notNull: true,
-      unique: true,
     },
 
     name: {
       type: "varchar(128)",
       notNull: true,
-    },
-
-    unit_value: {
-      type: "numeric(10,2)",
-      notNull: false,
     },
 
     unit_value: {
