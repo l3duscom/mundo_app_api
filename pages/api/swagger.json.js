@@ -55,7 +55,7 @@ const options = {
         description: "Desenvolvimento",
       },
       {
-        url: "https://api.mundoapp.com",
+        url: "https://mundo-app-api.vercel.app",
         description: "Produção",
       },
     ],
