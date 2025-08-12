@@ -130,7 +130,10 @@ async function create(userInputValues) {
     });
   }
 
-  await validateUniqueUsername(userInputValues.username, userInputValues.company_id);
+  await validateUniqueUsername(
+    userInputValues.username,
+    userInputValues.company_id,
+  );
   await validateUniqueEmail(userInputValues.email);
   await hashPasswordInObject(userInputValues);
 
@@ -166,11 +169,17 @@ async function update(userId, userInputValues, companyId) {
     });
   }
 
-  if ("username" in userInputValues && userInputValues.username !== currentUser.username) {
+  if (
+    "username" in userInputValues &&
+    userInputValues.username !== currentUser.username
+  ) {
     await validateUniqueUsername(userInputValues.username, companyId);
   }
 
-  if ("email" in userInputValues && userInputValues.email !== currentUser.email) {
+  if (
+    "email" in userInputValues &&
+    userInputValues.email !== currentUser.email
+  ) {
     await validateUniqueEmail(userInputValues.email);
   }
 

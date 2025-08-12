@@ -67,7 +67,7 @@ import { ValidationError } from "infra/errors.js";
  *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
- *   
+ *
  *   delete:
  *     summary: Fazer logout do sistema
  *     description: Invalida a sessão atual e limpa o cookie
@@ -156,12 +156,15 @@ async function postHandler(request, response) {
 
 async function deleteHandler(request, response) {
   const sessionToken = request.cookies.session_id;
-  
+
   if (sessionToken) {
     await session.deleteByToken(sessionToken);
-    
+
     // Clear session cookie
-    response.setHeader("Set-Cookie", "session_id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly");
+    response.setHeader(
+      "Set-Cookie",
+      "session_id=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly",
+    );
   }
 
   return response.status(200).json({

@@ -22,9 +22,16 @@ async function getAuthenticatedUser(providedEmail, providedPassword) {
   }
 }
 
-async function getAuthenticatedUserByUsername(providedUsername, providedPassword, companySlug) {
+async function getAuthenticatedUserByUsername(
+  providedUsername,
+  providedPassword,
+  companySlug,
+) {
   try {
-    const storedUser = await findUserByUsernameInCompany(providedUsername, companySlug);
+    const storedUser = await findUserByUsernameInCompany(
+      providedUsername,
+      companySlug,
+    );
     await validatePassword(providedPassword, storedUser.password);
     await validateCompanyStatus(storedUser.company_id);
 
@@ -86,7 +93,7 @@ async function validatePassword(providedPassword, storedPassword) {
 async function validateCompanyStatus(companyId) {
   try {
     const companyData = await company.findOneById(companyId);
-    
+
     if (!companyData.is_active) {
       throw new UnauthorizedError({
         message: "Empresa inativa.",
@@ -107,7 +114,6 @@ async function validateCompanyStatus(companyId) {
         action: "Entre em contato com o suporte.",
       });
     }
-
   } catch (error) {
     if (error instanceof NotFoundError) {
       throw new UnauthorizedError({

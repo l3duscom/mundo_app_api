@@ -140,12 +140,15 @@ describe("POST /api/v1/sessions", () => {
 
     describe("Login by username and company", () => {
       test("With correct `username`, correct `company_slug` and correct `password`", async () => {
-        const { user, company } = await orchestrator.createAuthenticatedUser({
-          username: "testuser",
-          password: "senhatest",
-        }, {
-          slug: "test-company"
-        });
+        const { user, company } = await orchestrator.createAuthenticatedUser(
+          {
+            username: "testuser",
+            password: "senhatest",
+          },
+          {
+            slug: "test-company",
+          },
+        );
 
         const response = await fetch("http://localhost:3000/api/v1/sessions", {
           method: "POST",
@@ -170,12 +173,15 @@ describe("POST /api/v1/sessions", () => {
       });
 
       test("With incorrect `username` but correct `company_slug` and `password`", async () => {
-        const { user, company } = await orchestrator.createAuthenticatedUser({
-          username: "testuser2",
-          password: "senhatest2",
-        }, {
-          slug: "test-company2"
-        });
+        const { user, company } = await orchestrator.createAuthenticatedUser(
+          {
+            username: "testuser2",
+            password: "senhatest2",
+          },
+          {
+            slug: "test-company2",
+          },
+        );
 
         const response = await fetch("http://localhost:3000/api/v1/sessions", {
           method: "POST",
@@ -202,12 +208,15 @@ describe("POST /api/v1/sessions", () => {
       });
 
       test("With correct `username` but incorrect `company_slug`", async () => {
-        const { user, company } = await orchestrator.createAuthenticatedUser({
-          username: "testuser3",
-          password: "senhatest3",
-        }, {
-          slug: "test-company3"
-        });
+        const { user, company } = await orchestrator.createAuthenticatedUser(
+          {
+            username: "testuser3",
+            password: "senhatest3",
+          },
+          {
+            slug: "test-company3",
+          },
+        );
 
         const response = await fetch("http://localhost:3000/api/v1/sessions", {
           method: "POST",
@@ -236,14 +245,15 @@ describe("POST /api/v1/sessions", () => {
 
     describe("Logout", () => {
       test("DELETE /api/v1/sessions with valid session", async () => {
-        const { session: testSession } = await orchestrator.createAuthenticatedUser();
+        const { session: testSession } =
+          await orchestrator.createAuthenticatedUser();
 
         const response = await orchestrator.makeAuthenticatedRequest(
           "http://localhost:3000/api/v1/sessions",
           {
             method: "DELETE",
           },
-          testSession.token
+          testSession.token,
         );
 
         expect(response.status).toBe(200);
@@ -256,7 +266,9 @@ describe("POST /api/v1/sessions", () => {
         });
 
         expect(parsedSetCookie.session_id.value).toBe("");
-        expect(parsedSetCookie.session_id.expires.getTime()).toBeLessThan(Date.now());
+        expect(parsedSetCookie.session_id.expires.getTime()).toBeLessThan(
+          Date.now(),
+        );
       });
 
       test("DELETE /api/v1/sessions without session", async () => {

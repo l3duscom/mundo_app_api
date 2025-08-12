@@ -22,7 +22,7 @@ describe("GET /api/v1/tickets", () => {
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/tickets",
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);
@@ -34,13 +34,15 @@ describe("GET /api/v1/tickets", () => {
     });
 
     test("Should return only tickets from user's company", async () => {
-      const { session: session1, company: company1 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: session1, company: company1 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
-      const { session: session2, company: company2 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: session2, company: company2 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       // Create events for both companies
       const eventResponse1 = await orchestrator.makeAuthenticatedRequest(
@@ -52,7 +54,7 @@ describe("GET /api/v1/tickets", () => {
             slug: "evento-1",
           }),
         },
-        session1.token
+        session1.token,
       );
 
       const eventResponse2 = await orchestrator.makeAuthenticatedRequest(
@@ -64,7 +66,7 @@ describe("GET /api/v1/tickets", () => {
             slug: "evento-2",
           }),
         },
-        session2.token
+        session2.token,
       );
 
       const event1 = await eventResponse1.json();
@@ -79,13 +81,13 @@ describe("GET /api/v1/tickets", () => {
             event_id: event1.id,
             code: "TICKET-1",
             name: "Ingresso Empresa 1",
-            price: 50.00,
+            price: 50.0,
             stock_total: 100,
             category: "pista",
             sales_start_at: "2024-01-01T10:00:00Z",
           }),
         },
-        session1.token
+        session1.token,
       );
 
       await orchestrator.makeAuthenticatedRequest(
@@ -96,20 +98,20 @@ describe("GET /api/v1/tickets", () => {
             event_id: event2.id,
             code: "TICKET-2",
             name: "Ingresso Empresa 2",
-            price: 75.00,
+            price: 75.0,
             stock_total: 200,
             category: "vip",
             sales_start_at: "2024-01-01T10:00:00Z",
           }),
         },
-        session2.token
+        session2.token,
       );
 
       // Company 1 should only see their tickets
       const response1 = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/tickets",
         { method: "GET" },
-        session1.token
+        session1.token,
       );
 
       expect(response1.status).toBe(200);
@@ -124,7 +126,7 @@ describe("GET /api/v1/tickets", () => {
       const response2 = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/tickets",
         { method: "GET" },
-        session2.token
+        session2.token,
       );
 
       expect(response2.status).toBe(200);
@@ -151,7 +153,7 @@ describe("GET /api/v1/tickets", () => {
             slug: "show-a",
           }),
         },
-        session.token
+        session.token,
       );
 
       const eventResponse2 = await orchestrator.makeAuthenticatedRequest(
@@ -163,7 +165,7 @@ describe("GET /api/v1/tickets", () => {
             slug: "show-b",
           }),
         },
-        session.token
+        session.token,
       );
 
       const event1 = await eventResponse1.json();
@@ -178,13 +180,13 @@ describe("GET /api/v1/tickets", () => {
             event_id: event1.id,
             code: "SHOW-A-TICKET",
             name: "Ingresso Show A",
-            price: 50.00,
+            price: 50.0,
             stock_total: 100,
             category: "pista",
             sales_start_at: "2024-01-01T10:00:00Z",
           }),
         },
-        session.token
+        session.token,
       );
 
       await orchestrator.makeAuthenticatedRequest(
@@ -195,20 +197,20 @@ describe("GET /api/v1/tickets", () => {
             event_id: event2.id,
             code: "SHOW-B-TICKET",
             name: "Ingresso Show B",
-            price: 75.00,
+            price: 75.0,
             stock_total: 200,
             category: "vip",
             sales_start_at: "2024-01-01T10:00:00Z",
           }),
         },
-        session.token
+        session.token,
       );
 
       // Filter by event ID
       const response = await orchestrator.makeAuthenticatedRequest(
         `http://localhost:3000/api/v1/tickets?eventId=${event1.id}`,
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);
@@ -234,7 +236,7 @@ describe("GET /api/v1/tickets", () => {
             slug: "test-event",
           }),
         },
-        session.token
+        session.token,
       );
 
       const event = await eventResponse.json();
@@ -248,14 +250,14 @@ describe("GET /api/v1/tickets", () => {
             event_id: event.id,
             code: "ACTIVE-TICKET",
             name: "Ingresso Ativo",
-            price: 50.00,
+            price: 50.0,
             stock_total: 100,
             category: "pista",
             sales_start_at: "2024-01-01T10:00:00Z",
             is_active: true,
           }),
         },
-        session.token
+        session.token,
       );
 
       // Create inactive ticket
@@ -267,21 +269,21 @@ describe("GET /api/v1/tickets", () => {
             event_id: event.id,
             code: "INACTIVE-TICKET",
             name: "Ingresso Inativo",
-            price: 75.00,
+            price: 75.0,
             stock_total: 200,
             category: "vip",
             sales_start_at: "2024-01-01T10:00:00Z",
             is_active: false,
           }),
         },
-        session.token
+        session.token,
       );
 
       // Filter by active status
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/tickets?isActive=true",
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);
@@ -307,7 +309,7 @@ describe("GET /api/v1/tickets", () => {
             slug: "test-event",
           }),
         },
-        session.token
+        session.token,
       );
 
       const event = await eventResponse.json();
@@ -321,13 +323,13 @@ describe("GET /api/v1/tickets", () => {
             event_id: event.id,
             code: "VIP-TICKET",
             name: "Ingresso VIP",
-            price: 100.00,
+            price: 100.0,
             stock_total: 50,
             category: "vip",
             sales_start_at: "2024-01-01T10:00:00Z",
           }),
         },
-        session.token
+        session.token,
       );
 
       // Create regular ticket
@@ -339,20 +341,20 @@ describe("GET /api/v1/tickets", () => {
             event_id: event.id,
             code: "REGULAR-TICKET",
             name: "Ingresso Pista",
-            price: 50.00,
+            price: 50.0,
             stock_total: 200,
             category: "pista",
             sales_start_at: "2024-01-01T10:00:00Z",
           }),
         },
-        session.token
+        session.token,
       );
 
       // Filter by category
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/tickets?category=vip",
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);

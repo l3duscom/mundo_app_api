@@ -16,12 +16,12 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const username = request.query.username;
   const companyId = request.context.company.id;
-  
+
   const userFound = await user.findOneByUsername(username, companyId);
-  
+
   // Remove password from response
   const { password, ...userWithoutPassword } = userFound;
-  
+
   return response.status(200).json(userWithoutPassword);
 }
 
@@ -29,14 +29,18 @@ async function patchHandler(request, response) {
   const username = request.query.username;
   const userInputValues = request.body;
   const companyId = request.context.company.id;
-  
+
   // First find user to get their ID
   const existingUser = await user.findOneByUsername(username, companyId);
-  
-  const updatedUser = await user.update(existingUser.id, userInputValues, companyId);
-  
+
+  const updatedUser = await user.update(
+    existingUser.id,
+    userInputValues,
+    companyId,
+  );
+
   // Remove password from response
   const { password, ...updatedUserWithoutPassword } = updatedUser;
-  
+
   return response.status(200).json(updatedUserWithoutPassword);
 }

@@ -37,12 +37,15 @@ async function runPendingMigrations() {
 async function createCompany(companyObject) {
   const companyData = {
     name: companyObject?.name || faker.company.name(),
-    slug: companyObject?.slug || faker.helpers.slugify(faker.company.name()).toLowerCase(),
+    slug:
+      companyObject?.slug ||
+      faker.helpers.slugify(faker.company.name()).toLowerCase(),
     cnpj: companyObject?.cnpj || faker.string.numeric(14),
     subscription_plan: companyObject?.subscription_plan || "free",
     subscription_status: companyObject?.subscription_status || "active",
     settings: companyObject?.settings || {},
-    is_active: companyObject?.is_active !== undefined ? companyObject.is_active : true,
+    is_active:
+      companyObject?.is_active !== undefined ? companyObject.is_active : true,
   };
 
   return await company.create(companyData);
@@ -56,7 +59,8 @@ async function createUser(userObject, companyId) {
 
   const userData = {
     company_id: companyId,
-    username: userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    username:
+      userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
     email: userObject?.email || faker.internet.email(),
     password: userObject?.password || "validpassword",
     role: userObject?.role || "admin",
@@ -71,10 +75,12 @@ async function createSession(userId, companyId) {
 }
 
 async function createAuthenticatedUser(userObject, companyObject) {
-  const createdCompany = companyObject ? await createCompany(companyObject) : await createCompany();
+  const createdCompany = companyObject
+    ? await createCompany(companyObject)
+    : await createCompany();
   const createdUser = await createUser(userObject, createdCompany.id);
   const createdSession = await createSession(createdUser.id, createdCompany.id);
-  
+
   return {
     user: createdUser,
     company: createdCompany,
@@ -84,8 +90,8 @@ async function createAuthenticatedUser(userObject, companyObject) {
 
 async function makeAuthenticatedRequest(url, options = {}, sessionToken) {
   const headers = {
-    'Content-Type': 'application/json',
-    'Cookie': `session_id=${sessionToken}`,
+    "Content-Type": "application/json",
+    Cookie: `session_id=${sessionToken}`,
     ...options.headers,
   };
 

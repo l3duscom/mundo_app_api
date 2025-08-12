@@ -105,11 +105,17 @@ async function create(companyInputValues) {
 async function update(id, companyInputValues) {
   const currentCompany = await findOneById(id);
 
-  if ("slug" in companyInputValues && companyInputValues.slug !== currentCompany.slug) {
+  if (
+    "slug" in companyInputValues &&
+    companyInputValues.slug !== currentCompany.slug
+  ) {
     await validateUniqueSlug(companyInputValues.slug);
   }
 
-  if ("cnpj" in companyInputValues && companyInputValues.cnpj !== currentCompany.cnpj) {
+  if (
+    "cnpj" in companyInputValues &&
+    companyInputValues.cnpj !== currentCompany.cnpj
+  ) {
     await validateUniqueCnpj(companyInputValues.cnpj);
   }
 

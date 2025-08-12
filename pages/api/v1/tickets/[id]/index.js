@@ -16,9 +16,9 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const id = request.query.id;
   const companyId = request.context.company.id;
-  
+
   const ticketData = await ticket.findOneById(id, companyId);
-  
+
   return response.status(200).json(ticketData);
 }
 
@@ -26,8 +26,8 @@ async function patchHandler(request, response) {
   const id = request.query.id;
   const ticketInputValues = request.body;
   const companyId = request.context.company.id;
-  
+
   const updatedTicket = await ticket.update(id, ticketInputValues, companyId);
-  
+
   return response.status(200).json(updatedTicket);
 }

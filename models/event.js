@@ -174,7 +174,10 @@ async function create(eventInputValues, userId, companyId) {
 async function update(id, eventInputValues, companyId) {
   const currentEvent = await findOneById(id, companyId);
 
-  if ("slug" in eventInputValues && eventInputValues.slug !== currentEvent.slug) {
+  if (
+    "slug" in eventInputValues &&
+    eventInputValues.slug !== currentEvent.slug
+  ) {
     await validateUniqueSlug(eventInputValues.slug, companyId);
   }
 

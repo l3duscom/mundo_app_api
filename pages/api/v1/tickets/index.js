@@ -45,7 +45,7 @@ import ticket from "models/ticket.js";
  *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
- *   
+ *
  *   post:
  *     summary: Criar novo ingresso
  *     description: |
@@ -155,14 +155,14 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const companyId = request.context.company.id;
   const { eventId, isActive, category } = request.query;
-  
+
   const filters = {};
   if (eventId) filters.eventId = eventId;
   if (isActive !== undefined) filters.isActive = isActive === "true";
   if (category) filters.category = category;
-  
+
   const tickets = await ticket.findAllByCompany(companyId, filters);
-  
+
   return response.status(200).json(tickets);
 }
 
@@ -170,8 +170,8 @@ async function postHandler(request, response) {
   const ticketInputValues = request.body;
   const userId = request.context.user.id;
   const companyId = request.context.company.id;
-  
+
   const newTicket = await ticket.create(ticketInputValues, userId, companyId);
-  
+
   return response.status(201).json(newTicket);
 }

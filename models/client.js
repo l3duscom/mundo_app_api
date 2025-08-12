@@ -103,7 +103,10 @@ async function create(clientInputValues, userId, companyId) {
 async function update(id, clientInputValues, companyId) {
   const currentClient = await findOneById(id, companyId);
 
-  if ("cpfcnpj" in clientInputValues && clientInputValues.cpfcnpj !== currentClient.cpfcnpj) {
+  if (
+    "cpfcnpj" in clientInputValues &&
+    clientInputValues.cpfcnpj !== currentClient.cpfcnpj
+  ) {
     await validateUniqueCpfCnpj(clientInputValues.cpfcnpj, companyId);
   }
 

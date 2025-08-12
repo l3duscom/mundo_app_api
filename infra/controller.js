@@ -19,8 +19,8 @@ function onErrorHandler(error, request, response) {
   const context = {
     method: request.method,
     url: request.url,
-    user: request.context?.user?.id || 'anonymous',
-    company: request.context?.company?.slug || 'unknown',
+    user: request.context?.user?.id || "anonymous",
+    company: request.context?.company?.slug || "unknown",
     timestamp: new Date().toISOString(),
   };
 
@@ -29,7 +29,10 @@ function onErrorHandler(error, request, response) {
     error instanceof NotFoundError ||
     error instanceof UnauthorizedError
   ) {
-    console.log(`[${error.name}] ${context.method} ${context.url} - User: ${context.user} - Company: ${context.company}`, error.message);
+    console.log(
+      `[${error.name}] ${context.method} ${context.url} - User: ${context.user} - Company: ${context.company}`,
+      error.message,
+    );
     return response.status(error.statusCode).json(error);
   }
 
@@ -37,11 +40,14 @@ function onErrorHandler(error, request, response) {
     cause: error,
   });
 
-  console.error(`[InternalServerError] ${context.method} ${context.url} - User: ${context.user} - Company: ${context.company}`, {
-    error: error.message,
-    stack: error.stack,
-    context,
-  });
+  console.error(
+    `[InternalServerError] ${context.method} ${context.url} - User: ${context.user} - Company: ${context.company}`,
+    {
+      error: error.message,
+      stack: error.stack,
+      context,
+    },
+  );
 
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
@@ -73,13 +79,16 @@ function logActivity(request, action, details = {}) {
   const context = {
     method: request.method,
     url: request.url,
-    user: request.context?.user?.id || 'anonymous',
-    username: request.context?.user?.username || 'unknown',
-    company: request.context?.company?.slug || 'unknown',
+    user: request.context?.user?.id || "anonymous",
+    username: request.context?.user?.username || "unknown",
+    company: request.context?.company?.slug || "unknown",
     action,
     details,
     timestamp: new Date().toISOString(),
-    ip: request.headers['x-forwarded-for'] || request.connection?.remoteAddress || 'unknown',
+    ip:
+      request.headers["x-forwarded-for"] ||
+      request.connection?.remoteAddress ||
+      "unknown",
   };
 
   console.log(`[ACTIVITY] ${action}`, context);

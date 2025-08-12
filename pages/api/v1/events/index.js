@@ -46,7 +46,7 @@ import event from "models/event.js";
  *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
- *   
+ *
  *   post:
  *     summary: Criar novo evento
  *     description: |
@@ -154,14 +154,14 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const companyId = request.context.company.id;
   const { active, startDate, category } = request.query;
-  
+
   const filters = {};
   if (active !== undefined) filters.active = active === "true";
   if (startDate) filters.startDate = startDate;
   if (category) filters.category = category;
-  
+
   const events = await event.findAllByCompany(companyId, filters);
-  
+
   return response.status(200).json(events);
 }
 
@@ -169,8 +169,8 @@ async function postHandler(request, response) {
   const eventInputValues = request.body;
   const userId = request.context.user.id;
   const companyId = request.context.company.id;
-  
+
   const newEvent = await event.create(eventInputValues, userId, companyId);
-  
+
   return response.status(201).json(newEvent);
 }

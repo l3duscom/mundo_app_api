@@ -15,17 +15,20 @@ A documentação completa da API está disponível em:
 Esta API implementa um sistema SaaS completo com isolamento total de dados por empresa:
 
 ### 🔐 Autenticação
+
 - **Cookie-based**: Sessões seguras com cookies HTTP-only
 - **Duplo login**: Email global OU username+empresa
 - **Multi-tenant**: Contexto automático da empresa
 
 ### 👥 Roles e Permissões
+
 - **Admin**: Gestão completa da empresa
-- **Manager**: Eventos, usuários e relatórios  
+- **Manager**: Eventos, usuários e relatórios
 - **Operator**: Vendas e atendimento
 - **Viewer**: Apenas visualização
 
 ### 📊 Subscription Management
+
 - **Free**: Funcionalidades básicas
 - **Premium**: Recursos avançados
 - **Enterprise**: Funcionalidades completas
@@ -34,6 +37,7 @@ Esta API implementa um sistema SaaS completo com isolamento total de dados por e
 ## 🛠️ Endpoints Principais
 
 ### Autenticação
+
 ```bash
 # Login por email
 POST /api/v1/sessions
@@ -46,7 +50,7 @@ POST /api/v1/sessions
 POST /api/v1/sessions
 {
   "username": "admin",
-  "company_slug": "minha-empresa", 
+  "company_slug": "minha-empresa",
   "password": "senha123"
 }
 
@@ -55,6 +59,7 @@ DELETE /api/v1/sessions
 ```
 
 ### Usuários
+
 ```bash
 # Listar usuários da empresa
 GET /api/v1/users
@@ -73,6 +78,7 @@ GET /api/v1/user
 ```
 
 ### Eventos
+
 ```bash
 # Listar eventos
 GET /api/v1/events?active=true&category=show
@@ -93,6 +99,7 @@ GET /api/v1/events/show-banda-xyz
 ```
 
 ### Ingressos
+
 ```bash
 # Listar ingressos
 GET /api/v1/tickets?eventId=uuid&isActive=true
@@ -114,6 +121,7 @@ GET /api/v1/events/show-banda-xyz/tickets
 ```
 
 ### Clientes
+
 ```bash
 # Listar clientes
 GET /api/v1/clients?limit=50&offset=0
@@ -130,18 +138,22 @@ POST /api/v1/clients
 ## 🔒 Segurança
 
 ### Headers de Autenticação
+
 Todas as rotas autenticadas usam cookies:
+
 ```bash
 Cookie: session_id=abc123...
 ```
 
 ### Isolamento Multi-Tenant
+
 - ✅ Todas as queries filtram por `company_id`
 - ✅ Validação automática de empresa ativa
 - ✅ Verificação de subscription válida
 - ✅ Controle de acesso por role
 
 ### Rate Limiting
+
 - Implementar rate limiting por IP/empresa
 - Monitoramento de tentativas de login
 - Logs de auditoria por empresa
@@ -149,6 +161,7 @@ Cookie: session_id=abc123...
 ## 📈 Filtros e Paginação
 
 ### Parâmetros Comuns
+
 ```bash
 # Paginação
 ?limit=50&offset=100
@@ -165,19 +178,20 @@ Cookie: session_id=abc123...
 
 ## 🚦 Códigos de Status
 
-| Status | Descrição |
-|--------|-----------|
-| `200` | Sucesso |
-| `201` | Criado com sucesso |
-| `400` | Erro de validação |
-| `401` | Não autorizado |
-| `403` | Permissão insuficiente |
-| `404` | Não encontrado |
-| `500` | Erro interno |
+| Status | Descrição              |
+| ------ | ---------------------- |
+| `200`  | Sucesso                |
+| `201`  | Criado com sucesso     |
+| `400`  | Erro de validação      |
+| `401`  | Não autorizado         |
+| `403`  | Permissão insuficiente |
+| `404`  | Não encontrado         |
+| `500`  | Erro interno           |
 
 ## 📋 Exemplos de Uso
 
 ### Workflow Completo
+
 ```bash
 # 1. Login
 POST /api/v1/sessions
@@ -200,7 +214,7 @@ POST /api/v1/events
 POST /api/v1/tickets
 {
   "event_id": "evento-uuid",
-  "code": "PISTA-001", 
+  "code": "PISTA-001",
   "name": "Pista",
   "price": 80.00,
   "stock_total": 1000
@@ -213,6 +227,7 @@ GET /api/v1/tickets?eventId=evento-uuid&isActive=true
 ## 🛠️ Desenvolvimento
 
 ### Testar API Localmente
+
 ```bash
 # Iniciar servidor
 npm run dev
@@ -225,6 +240,7 @@ curl http://localhost:3000/api/v1/status
 ```
 
 ### Validar Schema
+
 ```bash
 # Baixar schema OpenAPI
 curl http://localhost:3000/api/swagger.json > api-schema.json
@@ -236,7 +252,7 @@ swagger-validator api-schema.json
 ## 📞 Suporte
 
 - **Documentação**: `/api-docs`
-- **Status**: `/api/v1/status` 
+- **Status**: `/api/v1/status`
 - **Schema**: `/api/swagger.json`
 - **Email**: api@mundoapp.com
 

@@ -39,9 +39,10 @@ describe("POST /api/v1/users", () => {
 
   describe("Authenticated user", () => {
     test("Admin can create user with unique and valid data", async () => {
-      const { session: adminSession } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -54,7 +55,7 @@ describe("POST /api/v1/users", () => {
             role: "operator",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       expect(response.status).toBe(201);
@@ -79,7 +80,10 @@ describe("POST /api/v1/users", () => {
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
 
-      const userInDatabase = await user.findOneByUsername("newuser", responseBody.company_id);
+      const userInDatabase = await user.findOneByUsername(
+        "newuser",
+        responseBody.company_id,
+      );
       const correctPasswordMatch = await password.compare(
         "senha123",
         userInDatabase.password,
@@ -89,9 +93,10 @@ describe("POST /api/v1/users", () => {
     });
 
     test("Manager can create user", async () => {
-      const { session: managerSession } = await orchestrator.createAuthenticatedUser({
-        role: "manager",
-      });
+      const { session: managerSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "manager",
+        });
 
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -104,7 +109,7 @@ describe("POST /api/v1/users", () => {
             role: "viewer",
           }),
         },
-        managerSession.token
+        managerSession.token,
       );
 
       expect(response.status).toBe(201);
@@ -112,9 +117,10 @@ describe("POST /api/v1/users", () => {
     });
 
     test("Operator cannot create user", async () => {
-      const { session: operatorSession } = await orchestrator.createAuthenticatedUser({
-        role: "operator",
-      });
+      const { session: operatorSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "operator",
+        });
 
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -126,7 +132,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        operatorSession.token
+        operatorSession.token,
       );
 
       expect(response.status).toBe(403);
@@ -142,15 +148,17 @@ describe("POST /api/v1/users", () => {
     });
 
     test("With duplicated email (global)", async () => {
-      const { session: adminSession1 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-        email: "admin1@empresa1.com",
-      });
+      const { session: adminSession1 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+          email: "admin1@empresa1.com",
+        });
 
-      const { session: adminSession2 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-        email: "admin2@empresa2.com",
-      });
+      const { session: adminSession2 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+          email: "admin2@empresa2.com",
+        });
 
       await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -162,7 +170,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        adminSession1.token
+        adminSession1.token,
       );
 
       const response2 = await orchestrator.makeAuthenticatedRequest(
@@ -175,7 +183,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        adminSession2.token
+        adminSession2.token,
       );
 
       expect(response2.status).toBe(400);
@@ -191,13 +199,15 @@ describe("POST /api/v1/users", () => {
     });
 
     test("Username can be duplicated across different companies", async () => {
-      const { session: adminSession1 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession1 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
-      const { session: adminSession2 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession2 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       const response1 = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -209,7 +219,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        adminSession1.token
+        adminSession1.token,
       );
 
       const response2 = await orchestrator.makeAuthenticatedRequest(
@@ -222,7 +232,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        adminSession2.token
+        adminSession2.token,
       );
 
       expect(response1.status).toBe(201);
@@ -237,9 +247,10 @@ describe("POST /api/v1/users", () => {
     });
 
     test("Username cannot be duplicated within same company", async () => {
-      const { session: adminSession } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -251,7 +262,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       const response2 = await orchestrator.makeAuthenticatedRequest(
@@ -264,7 +275,7 @@ describe("POST /api/v1/users", () => {
             password: "senha123",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       expect(response2.status).toBe(400);
@@ -282,9 +293,10 @@ describe("POST /api/v1/users", () => {
 
   describe("GET /api/v1/users", () => {
     test("Admin can list all users from their company", async () => {
-      const { session: adminSession, company } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession, company } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
@@ -297,7 +309,7 @@ describe("POST /api/v1/users", () => {
             role: "manager",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       await orchestrator.makeAuthenticatedRequest(
@@ -311,7 +323,7 @@ describe("POST /api/v1/users", () => {
             role: "operator",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       const response = await orchestrator.makeAuthenticatedRequest(
@@ -319,7 +331,7 @@ describe("POST /api/v1/users", () => {
         {
           method: "GET",
         },
-        adminSession.token
+        adminSession.token,
       );
 
       expect(response.status).toBe(200);
@@ -329,31 +341,33 @@ describe("POST /api/v1/users", () => {
       expect(Array.isArray(responseBody)).toBe(true);
       expect(responseBody.length).toBe(3); // admin + 2 created users
 
-      responseBody.forEach(user => {
+      responseBody.forEach((user) => {
         expect(user.company_id).toBe(company.id);
-        expect(user).toHaveProperty('id');
-        expect(user).toHaveProperty('username');
-        expect(user).toHaveProperty('email');
-        expect(user).toHaveProperty('role');
-        expect(user).not.toHaveProperty('password');
+        expect(user).toHaveProperty("id");
+        expect(user).toHaveProperty("username");
+        expect(user).toHaveProperty("email");
+        expect(user).toHaveProperty("role");
+        expect(user).not.toHaveProperty("password");
       });
     });
 
     test("Users cannot see users from other companies", async () => {
-      const { session: adminSession1, company: company1 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession1, company: company1 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
-      const { session: adminSession2, company: company2 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession2, company: company2 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       const response1 = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/users",
         {
           method: "GET",
         },
-        adminSession1.token
+        adminSession1.token,
       );
 
       const response2 = await orchestrator.makeAuthenticatedRequest(
@@ -361,7 +375,7 @@ describe("POST /api/v1/users", () => {
         {
           method: "GET",
         },
-        adminSession2.token
+        adminSession2.token,
       );
 
       expect(response1.status).toBe(200);
@@ -370,16 +384,20 @@ describe("POST /api/v1/users", () => {
       const users1 = await response1.json();
       const users2 = await response2.json();
 
-      users1.forEach(user => {
+      users1.forEach((user) => {
         expect(user.company_id).toBe(company1.id);
       });
 
-      users2.forEach(user => {
+      users2.forEach((user) => {
         expect(user.company_id).toBe(company2.id);
       });
 
-      expect(users1.some(user => user.company_id === company2.id)).toBe(false);
-      expect(users2.some(user => user.company_id === company1.id)).toBe(false);
+      expect(users1.some((user) => user.company_id === company2.id)).toBe(
+        false,
+      );
+      expect(users2.some((user) => user.company_id === company1.id)).toBe(
+        false,
+      );
     });
   });
 });

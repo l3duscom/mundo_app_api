@@ -183,7 +183,9 @@ async function create(ticketInputValues, userId, companyId) {
       ticketInputValues.batch_no || 1,
       ticketInputValues.batch_date,
       ticketInputValues.description,
-      ticketInputValues.is_active !== undefined ? ticketInputValues.is_active : true,
+      ticketInputValues.is_active !== undefined
+        ? ticketInputValues.is_active
+        : true,
     ],
   });
 
@@ -193,7 +195,10 @@ async function create(ticketInputValues, userId, companyId) {
 async function update(id, ticketInputValues, companyId) {
   const currentTicket = await findOneById(id, companyId);
 
-  if ("code" in ticketInputValues && ticketInputValues.code !== currentTicket.code) {
+  if (
+    "code" in ticketInputValues &&
+    ticketInputValues.code !== currentTicket.code
+  ) {
     await validateUniqueCode(ticketInputValues.code, companyId);
   }
 

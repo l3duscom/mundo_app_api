@@ -16,12 +16,12 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const slug = request.query.slug;
   const companyId = request.context.company.id;
-  
+
   // First find the event by slug
   const eventData = await event.findOneBySlug(slug, companyId);
-  
+
   // Then get all tickets for this event
   const tickets = await ticket.findAllByEvent(eventData.id, companyId);
-  
+
   return response.status(200).json(tickets);
 }

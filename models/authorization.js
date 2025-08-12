@@ -13,7 +13,7 @@ async function injectAuthenticatedUser(request, response, next) {
 
   try {
     const sessionObject = await session.findOneValidByToken(sessionToken);
-    
+
     // Inject user and company context into request
     request.context = {
       user: {
@@ -63,7 +63,9 @@ function requireRole(allowedRoles) {
     };
 
     const userLevel = roleHierarchy[userRole] || 0;
-    const requiredLevel = Math.min(...allowedRoles.map(role => roleHierarchy[role] || 0));
+    const requiredLevel = Math.min(
+      ...allowedRoles.map((role) => roleHierarchy[role] || 0),
+    );
 
     if (userLevel < requiredLevel) {
       throw new ForbiddenError({

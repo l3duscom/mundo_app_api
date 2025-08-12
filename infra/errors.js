@@ -104,7 +104,8 @@ export class ForbiddenError extends Error {
       cause,
     });
     this.name = "ForbiddenError";
-    this.action = action || "Verifique se você possui permissão para este recurso.";
+    this.action =
+      action || "Verifique se você possui permissão para este recurso.";
     this.statusCode = 403;
   }
 

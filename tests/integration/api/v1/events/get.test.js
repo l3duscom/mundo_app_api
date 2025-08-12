@@ -31,7 +31,7 @@ describe("GET /api/v1/events", () => {
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);
@@ -43,13 +43,15 @@ describe("GET /api/v1/events", () => {
     });
 
     test("Should return only events from user's company", async () => {
-      const { session: session1, company: company1 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: session1, company: company1 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
-      const { session: session2, company: company2 } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: session2, company: company2 } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       // Create event in company 1
       await orchestrator.makeAuthenticatedRequest(
@@ -63,7 +65,7 @@ describe("GET /api/v1/events", () => {
             category: "show",
           }),
         },
-        session1.token
+        session1.token,
       );
 
       // Create event in company 2
@@ -78,14 +80,14 @@ describe("GET /api/v1/events", () => {
             category: "festival",
           }),
         },
-        session2.token
+        session2.token,
       );
 
       // Company 1 should only see their event
       const response1 = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
         { method: "GET" },
-        session1.token
+        session1.token,
       );
 
       expect(response1.status).toBe(200);
@@ -100,7 +102,7 @@ describe("GET /api/v1/events", () => {
       const response2 = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
         { method: "GET" },
-        session2.token
+        session2.token,
       );
 
       expect(response2.status).toBe(200);
@@ -128,7 +130,7 @@ describe("GET /api/v1/events", () => {
             category: "show",
           }),
         },
-        session.token
+        session.token,
       );
 
       await orchestrator.makeAuthenticatedRequest(
@@ -141,14 +143,14 @@ describe("GET /api/v1/events", () => {
             category: "festival",
           }),
         },
-        session.token
+        session.token,
       );
 
       // Filter by category
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events?category=show",
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);
@@ -176,7 +178,7 @@ describe("GET /api/v1/events", () => {
             active: true,
           }),
         },
-        session.token
+        session.token,
       );
 
       // Create inactive event
@@ -190,14 +192,14 @@ describe("GET /api/v1/events", () => {
             active: false,
           }),
         },
-        session.token
+        session.token,
       );
 
       // Filter by active status
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events?active=true",
         { method: "GET" },
-        session.token
+        session.token,
       );
 
       expect(response.status).toBe(200);

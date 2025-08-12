@@ -27,7 +27,11 @@ describe("POST /api/v1/events", () => {
 
   describe("Authenticated user", () => {
     test("Admin can create event with valid data", async () => {
-      const { session: adminSession, company, user } = await orchestrator.createAuthenticatedUser({
+      const {
+        session: adminSession,
+        company,
+        user,
+      } = await orchestrator.createAuthenticatedUser({
         role: "admin",
       });
 
@@ -54,7 +58,7 @@ describe("POST /api/v1/events", () => {
           method: "POST",
           body: JSON.stringify(eventData),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       expect(response.status).toBe(201);
@@ -91,9 +95,10 @@ describe("POST /api/v1/events", () => {
     });
 
     test("Manager can create event", async () => {
-      const { session: managerSession } = await orchestrator.createAuthenticatedUser({
-        role: "manager",
-      });
+      const { session: managerSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "manager",
+        });
 
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
@@ -104,16 +109,17 @@ describe("POST /api/v1/events", () => {
             slug: "evento-manager",
           }),
         },
-        managerSession.token
+        managerSession.token,
       );
 
       expect(response.status).toBe(201);
     });
 
     test("Operator cannot create event", async () => {
-      const { session: operatorSession } = await orchestrator.createAuthenticatedUser({
-        role: "operator",
-      });
+      const { session: operatorSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "operator",
+        });
 
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
@@ -124,7 +130,7 @@ describe("POST /api/v1/events", () => {
             slug: "evento-nao-autorizado",
           }),
         },
-        operatorSession.token
+        operatorSession.token,
       );
 
       expect(response.status).toBe(403);
@@ -157,7 +163,7 @@ describe("POST /api/v1/events", () => {
             slug: "same-slug",
           }),
         },
-        session1.token
+        session1.token,
       );
 
       const response2 = await orchestrator.makeAuthenticatedRequest(
@@ -169,7 +175,7 @@ describe("POST /api/v1/events", () => {
             slug: "same-slug",
           }),
         },
-        session2.token
+        session2.token,
       );
 
       expect(response1.status).toBe(201);
@@ -184,9 +190,10 @@ describe("POST /api/v1/events", () => {
     });
 
     test("Slug cannot be duplicated within same company", async () => {
-      const { session: adminSession } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
@@ -197,7 +204,7 @@ describe("POST /api/v1/events", () => {
             slug: "duplicated-slug",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       const response2 = await orchestrator.makeAuthenticatedRequest(
@@ -209,7 +216,7 @@ describe("POST /api/v1/events", () => {
             slug: "duplicated-slug",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       expect(response2.status).toBe(400);
@@ -221,9 +228,10 @@ describe("POST /api/v1/events", () => {
     });
 
     test("Should validate required fields", async () => {
-      const { session: adminSession } = await orchestrator.createAuthenticatedUser({
-        role: "admin",
-      });
+      const { session: adminSession } =
+        await orchestrator.createAuthenticatedUser({
+          role: "admin",
+        });
 
       const response = await orchestrator.makeAuthenticatedRequest(
         "http://localhost:3000/api/v1/events",
@@ -234,7 +242,7 @@ describe("POST /api/v1/events", () => {
             category: "show",
           }),
         },
-        adminSession.token
+        adminSession.token,
       );
 
       expect(response.status).toBe(400);

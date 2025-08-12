@@ -24,7 +24,7 @@ import company from "models/company.js";
  *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
- *   
+ *
  *   post:
  *     summary: Criar nova empresa
  *     description: |
@@ -93,7 +93,7 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const companyId = request.context.company.id;
   const companyData = await company.findOneById(companyId);
-  
+
   return response.status(200).json(companyData);
 }
 
@@ -101,8 +101,8 @@ async function postHandler(request, response) {
   // Only super admins should be able to create companies
   // This would typically be restricted further in a production environment
   const companyInputValues = request.body;
-  
+
   const newCompany = await company.create(companyInputValues);
-  
+
   return response.status(201).json(newCompany);
 }

@@ -16,9 +16,9 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const slug = request.query.slug;
   const companyId = request.context.company.id;
-  
+
   const eventData = await event.findOneBySlug(slug, companyId);
-  
+
   return response.status(200).json(eventData);
 }
 
@@ -26,11 +26,15 @@ async function patchHandler(request, response) {
   const slug = request.query.slug;
   const eventInputValues = request.body;
   const companyId = request.context.company.id;
-  
+
   // First find event to get its ID
   const existingEvent = await event.findOneBySlug(slug, companyId);
-  
-  const updatedEvent = await event.update(existingEvent.id, eventInputValues, companyId);
-  
+
+  const updatedEvent = await event.update(
+    existingEvent.id,
+    eventInputValues,
+    companyId,
+  );
+
   return response.status(200).json(updatedEvent);
 }

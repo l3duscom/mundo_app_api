@@ -26,7 +26,7 @@ import user from "models/user.js";
  *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
- *   
+ *
  *   post:
  *     summary: Criar novo usuário
  *     description: |
@@ -93,9 +93,9 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const companyId = request.context.company.id;
   const users = await user.findAllByCompany(companyId);
-  
+
   // Remove password from response
-  const usersWithoutPassword = users.map(u => {
+  const usersWithoutPassword = users.map((u) => {
     const { password, ...userWithoutPassword } = u;
     return userWithoutPassword;
   });
@@ -106,14 +106,14 @@ async function getHandler(request, response) {
 async function postHandler(request, response) {
   const userInputValues = request.body;
   const companyId = request.context.company.id;
-  
+
   // Inject company_id from authenticated context
   userInputValues.company_id = companyId;
-  
+
   const newUser = await user.create(userInputValues);
-  
+
   // Remove password from response
   const { password, ...newUserWithoutPassword } = newUser;
-  
+
   return response.status(201).json(newUserWithoutPassword);
 }
