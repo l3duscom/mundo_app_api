@@ -33,7 +33,7 @@ exports.up = (pgm) => {
     role: {
       type: "varchar(20)",
       notNull: true,
-      default: "admin",
+      default: "viewer",
     },
 
     status: {
