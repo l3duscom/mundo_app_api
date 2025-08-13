@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import "swagger-ui-react/swagger-ui.css";
 
 const SwaggerUI = dynamic(() => import("swagger-ui-react"), {
   ssr: false,
@@ -20,11 +21,6 @@ export default function ApiDocs() {
 
   useEffect(() => {
     setMounted(true);
-    
-    // Import CSS for Swagger UI
-    if (typeof window !== "undefined") {
-      import("swagger-ui-react/swagger-ui.css");
-    }
   }, []);
 
   if (!mounted) {
