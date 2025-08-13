@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
 import "swagger-ui-react/swagger-ui.css";
 
 const SwaggerUI = dynamic(() => import("swagger-ui-react"), {
@@ -9,7 +8,8 @@ const SwaggerUI = dynamic(() => import("swagger-ui-react"), {
       display: "flex", 
       justifyContent: "center", 
       alignItems: "center", 
-      height: "50vh" 
+      height: "50vh",
+      fontFamily: "Arial, sans-serif" 
     }}>
       <p>Carregando documentação da API...</p>
     </div>
@@ -17,25 +17,6 @@ const SwaggerUI = dynamic(() => import("swagger-ui-react"), {
 });
 
 export default function ApiDocs() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return (
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "center", 
-        alignItems: "center", 
-        height: "50vh" 
-      }}>
-        <p>Inicializando...</p>
-      </div>
-    );
-  }
-
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <SwaggerUI 
@@ -50,6 +31,7 @@ export default function ApiDocs() {
         filter={true}
         showExtensions={true}
         showCommonExtensions={true}
+        tryItOutEnabled={true}
       />
     </div>
   );
