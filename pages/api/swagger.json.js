@@ -665,15 +665,6 @@ const options = {
 };
 
 export default function handler(req, res) {
-  // Apenas disponível em desenvolvimento
-  if (process.env.NODE_ENV !== "development") {
-    return res.status(404).json({
-      name: "NotFoundError",
-      message: "Documentação da API disponível apenas em desenvolvimento",
-      action: "Execute 'npm run dev' localmente para acessar a documentação",
-      status_code: 404,
-    });
-  }
 
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
