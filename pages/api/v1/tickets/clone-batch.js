@@ -2,6 +2,7 @@ import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import authorization from "models/authorization.js";
 import ticket from "models/ticket.js";
+import { ValidationError } from "infra/errors.js";
 
 /**
  * @swagger
