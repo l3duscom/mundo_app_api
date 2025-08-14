@@ -100,7 +100,7 @@ router.post(authorization.requireRole(["admin", "manager"]), postHandler);
 export default router.handler(controller.errorHandlers);
 
 async function postHandler(request, response) {
-  const { eventId, ...cloneOptions } = request.body;
+  const { eventId, fromBatchNo, ...cloneOptions } = request.body;
   const userId = request.context.user.id;
   const companyId = request.context.company.id;
 
@@ -111,11 +111,27 @@ async function postHandler(request, response) {
     });
   }
 
+  if (
+    fromBatchNo !== undefined &&
+    (!Number.isInteger(fromBatchNo) || fromBatchNo < 1)
+  ) {
+    throw new ValidationError({
+      message: "O campo fromBatchNo deve ser um número inteiro maior que zero.",
+      action:
+        "Forneça um número de lote válido ou remova o campo para clonar todos os lotes.",
+    });
+  }
+
+  // Inclui fromBatchNo nas opções de clonagem se fornecido
+  if (fromBatchNo !== undefined) {
+    cloneOptions.fromBatchNo = fromBatchNo;
+  }
+
   const clonedTickets = await ticket.cloneBatchTickets(
     eventId,
     cloneOptions,
     userId,
-    companyId
+    companyId,
   );
 
   return response.status(201).json({
