@@ -6,40 +6,66 @@ const nextConfig = {
   async headers() {
     const isDev = process.env.NODE_ENV === "development";
     
-    if (!isDev) {
-      // Em produção, não retornar headers específicos do Swagger
-      return [];
-    }
-    
-    // Em desenvolvimento, configurações do Swagger
-    return [
+    const corsHeaders = [
       {
-        source: '/api-docs',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate'
-          }
-        ]
+        key: 'Access-Control-Allow-Origin',
+        value: 'http://localhost:3000'
       },
       {
-        source: '/api/swagger.json',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*'
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET'
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type'
-          }
-        ]
+        key: 'Access-Control-Allow-Methods',
+        value: 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+      },
+      {
+        key: 'Access-Control-Allow-Headers',
+        value: 'Content-Type, Authorization, Cookie'
+      },
+      {
+        key: 'Access-Control-Allow-Credentials',
+        value: 'true'
       }
     ];
+    
+    const headers = [
+      // CORS for all API routes
+      {
+        source: '/api/:path*',
+        headers: corsHeaders
+      }
+    ];
+    
+    if (isDev) {
+      // Em desenvolvimento, adicionar configurações específicas do Swagger
+      headers.push(
+        {
+          source: '/api-docs',
+          headers: [
+            {
+              key: 'Cache-Control',
+              value: 'no-cache, no-store, must-revalidate'
+            }
+          ]
+        },
+        {
+          source: '/api/swagger.json',
+          headers: [
+            {
+              key: 'Access-Control-Allow-Origin',
+              value: '*'
+            },
+            {
+              key: 'Access-Control-Allow-Methods',
+              value: 'GET'
+            },
+            {
+              key: 'Access-Control-Allow-Headers',
+              value: 'Content-Type'
+            }
+          ]
+        }
+      );
+    }
+    
+    return headers;
   },
 
   // Configurações de webpack apenas para desenvolvimento

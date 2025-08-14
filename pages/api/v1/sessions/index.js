@@ -4,6 +4,7 @@ import authorization from "models/authorization.js";
 import authentication from "models/authentication.js";
 import session from "models/session.js";
 import { ValidationError } from "infra/errors.js";
+import corsMiddleware from "infra/cors.js";
 
 /**
  * @swagger
@@ -99,6 +100,8 @@ import { ValidationError } from "infra/errors.js";
 
 const router = createRouter();
 
+router.use(corsMiddleware);
+router.options((req, res) => res.status(200).end()); // Handle preflight explicitly
 router.post(postHandler);
 router.delete(authorization.injectAuthenticatedUser, deleteHandler);
 
