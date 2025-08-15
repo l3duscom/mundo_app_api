@@ -37,7 +37,7 @@ async function injectAuthenticatedUser(request, response, next) {
     };
 
     next();
-  } catch (error) {
+  } catch {
     throw new UnauthorizedError({
       message: "Sessão inválida ou expirada.",
       action: "Faça login novamente.",

@@ -1,6 +1,5 @@
 import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
-import authorization from "models/authorization.js";
 import event from "models/event.js";
 import ticket from "models/ticket.js";
 
