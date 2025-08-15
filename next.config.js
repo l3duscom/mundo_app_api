@@ -6,32 +6,7 @@ const nextConfig = {
   async headers() {
     const isDev = process.env.NODE_ENV === "development";
     
-    const corsHeaders = [
-      {
-        key: 'Access-Control-Allow-Origin',
-        value: 'http://localhost:3000'
-      },
-      {
-        key: 'Access-Control-Allow-Methods',
-        value: 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-      },
-      {
-        key: 'Access-Control-Allow-Headers',
-        value: 'Content-Type, Authorization, Cookie'
-      },
-      {
-        key: 'Access-Control-Allow-Credentials',
-        value: 'true'
-      }
-    ];
-    
-    const headers = [
-      // CORS for all API routes
-      {
-        source: '/api/:path*',
-        headers: corsHeaders
-      }
-    ];
+    const headers = [];
     
     if (isDev) {
       // Em desenvolvimento, adicionar configurações específicas do Swagger
