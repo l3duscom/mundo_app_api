@@ -3,9 +3,11 @@ import controller from "infra/controller.js";
 import authorization from "models/authorization.js";
 import company from "models/company.js";
 import { UnauthorizedError } from "infra/errors.js";
+import corsMiddleware from "infra/cors.js";
 
 const router = createRouter();
 
+router.use(corsMiddleware);
 router.use(authorization.injectAuthenticatedUser);
 router.use(authorization.requireActiveSubscription);
 

@@ -2,9 +2,11 @@ import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import database from "infra/database.js";
 import password from "models/password.js";
+import corsMiddleware from "infra/cors.js";
 
 const router = createRouter();
 
+router.use(corsMiddleware);
 router.post(postHandler);
 
 export default router.handler(controller.errorHandlers);

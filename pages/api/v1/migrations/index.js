@@ -1,8 +1,10 @@
 import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import migrator from "models/migrator.js";
+import corsMiddleware from "infra/cors.js";
 const router = createRouter();
 
+router.use(corsMiddleware);
 router.get(getHandler);
 router.post(postHandler);
 

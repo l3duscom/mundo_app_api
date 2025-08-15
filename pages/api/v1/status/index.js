@@ -1,6 +1,7 @@
 import { createRouter } from "next-connect";
 import database from "infra/database";
 import controller from "infra/controller.js";
+import corsMiddleware from "infra/cors.js";
 
 /**
  * @swagger
@@ -49,6 +50,7 @@ import controller from "infra/controller.js";
 
 const router = createRouter();
 
+router.use(corsMiddleware);
 router.get(getHandler);
 
 export default router.handler(controller.errorHandlers);

@@ -2,9 +2,11 @@ import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import authorization from "models/authorization.js";
 import client from "models/client.js";
+import corsMiddleware from "infra/cors.js";
 
 const router = createRouter();
 
+router.use(corsMiddleware);
 router.use(authorization.injectAuthenticatedUser);
 router.use(authorization.requireActiveSubscription);
 

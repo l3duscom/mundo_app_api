@@ -2,6 +2,7 @@ import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import authorization from "models/authorization.js";
 import event from "models/event.js";
+import corsMiddleware from "infra/cors.js";
 
 /**
  * @swagger
@@ -152,6 +153,7 @@ import event from "models/event.js";
 
 const router = createRouter();
 
+router.use(corsMiddleware);
 router.use(authorization.injectAuthenticatedUser);
 router.use(authorization.requireActiveSubscription);
 
