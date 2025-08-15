@@ -11,7 +11,7 @@ export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
   const slug = request.query.slug;
-  const { companyId } = request.query;
+  const { companyId, isActive } = request.query;
 
   if (!companyId) {
     return response.status(400).json({
@@ -22,8 +22,14 @@ async function getHandler(request, response) {
   // First find the event by slug
   const eventData = await event.findOneBySlug(slug, companyId);
 
-  // Then get all tickets for this event
-  const tickets = await ticket.findAllByEvent(eventData.id, companyId);
+  // Set up filters
+  const filters = {};
+  if (isActive !== undefined) {
+    filters.isActive = isActive === "true";
+  }
+
+  // Then get all tickets for this event with filters
+  const tickets = await ticket.findAllByEvent(eventData.id, companyId, filters);
 
   return response.status(200).json(tickets);
 }

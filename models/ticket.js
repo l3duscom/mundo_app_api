@@ -78,6 +78,12 @@ async function findAllByEvent(eventId, companyId, filters = {}) {
     values.push(filters.batchNo);
   }
 
+  if (filters.isActive !== undefined) {
+    paramCount++;
+    whereClause += ` AND t.is_active = $${paramCount}`;
+    values.push(filters.isActive);
+  }
+
   const results = await database.query({
     text: `
       SELECT
