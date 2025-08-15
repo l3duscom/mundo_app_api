@@ -2,6 +2,7 @@ import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import authorization from "models/authorization.js";
 import ticket from "models/ticket.js";
+import event from "models/event.js";
 import corsMiddleware from "infra/cors.js";
 
 /**
@@ -16,11 +17,24 @@ import corsMiddleware from "infra/cors.js";
  *       - cookieAuth: []
  *     parameters:
  *       - in: query
+ *         name: companyId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: ID da empresa (obrigatório)
+ *       - in: query
  *         name: eventId
  *         schema:
  *           type: string
  *           format: uuid
  *         description: Filtrar por ID do evento
+ *       - in: query
+ *         name: eventSlug
+ *         schema:
+ *           type: string
+ *         description: Filtrar por slug do evento
+ *         example: "meu-evento-2024"
  *       - in: query
  *         name: isActive
  *         schema:
@@ -146,20 +160,31 @@ import corsMiddleware from "infra/cors.js";
 const router = createRouter();
 
 router.use(corsMiddleware);
-router.use(authorization.injectAuthenticatedUser);
-router.use(authorization.requireActiveSubscription);
 
 router.get(getHandler);
-router.post(authorization.requireRole(["admin", "manager"]), postHandler);
+router.post(authorization.injectAuthenticatedUser, authorization.requireActiveSubscription, authorization.requireRole(["admin", "manager"]), postHandler);
 
 export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
-  const companyId = request.context.company.id;
-  const { eventId, isActive, category } = request.query;
+  const { companyId, eventId, eventSlug, isActive, category } = request.query;
+
+  if (!companyId) {
+    return response.status(400).json({
+      error: "company_id é obrigatório como parâmetro de query"
+    });
+  }
 
   const filters = {};
-  if (eventId) filters.eventId = eventId;
+  
+  // Se eventSlug foi fornecido, buscar o evento pelo slug
+  if (eventSlug) {
+    const eventData = await event.findOneBySlug(eventSlug, companyId);
+    filters.eventId = eventData.id;
+  } else if (eventId) {
+    filters.eventId = eventId;
+  }
+  
   if (isActive !== undefined) filters.isActive = isActive === "true";
   if (category) filters.category = category;
 
