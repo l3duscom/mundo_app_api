@@ -8,6 +8,7 @@ export function corsMiddleware(req, res, next) {
     "http://localhost:3003",
     "http://localhost:3004",
     "http://localhost:3005",
+    "https://ticketmd-wx96.vercel.app/",
     "https://mundo-app-api.vercel.app",
     "https://mundo-app.vercel.app", // Assuming frontend might be on different domain
   ];
