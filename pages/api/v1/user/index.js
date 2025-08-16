@@ -54,7 +54,13 @@ import corsMiddleware from "infra/cors.js";
 const router = createRouter();
 
 router.use(corsMiddleware);
-router.options((req, res) => res.status(200).end());
+router.all((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  next();
+});
 
 router.get(authorization.injectAuthenticatedUser, getHandler);
 
