@@ -37,8 +37,9 @@ export function corsMiddleware(req, res, next) {
 
   // Handle preflight requests
   if (req.method === "OPTIONS") {
-    // Ensure the origin header is set for OPTIONS requests
+    // For OPTIONS requests, always set the origin header first
     if (isOriginAllowed(origin, allowedOrigins)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
       res.status(200).end();
       return;
     } else {
