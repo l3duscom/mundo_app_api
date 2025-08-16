@@ -160,6 +160,7 @@ import corsMiddleware from "infra/cors.js";
 const router = createRouter();
 
 router.use(corsMiddleware);
+router.options((req, res) => res.status(200).end());
 
 router.get(getHandler);
 router.post(authorization.injectAuthenticatedUser, authorization.requireActiveSubscription, authorization.requireRole(["admin", "manager"]), postHandler);

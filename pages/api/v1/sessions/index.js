@@ -101,6 +101,7 @@ import corsMiddleware from "infra/cors.js";
 const router = createRouter();
 
 router.use(corsMiddleware);
+router.options((req, res) => res.status(200).end());
 router.post(postHandler);
 router.delete(authorization.injectAuthenticatedUser, deleteHandler);
 
