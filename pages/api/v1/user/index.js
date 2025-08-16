@@ -55,9 +55,8 @@ const router = createRouter();
 
 router.use(corsMiddleware);
 router.options((req, res) => res.status(200).end());
-router.use(authorization.injectAuthenticatedUser);
 
-router.get(getHandler);
+router.get(authorization.injectAuthenticatedUser, getHandler);
 
 export default router.handler(controller.errorHandlers);
 

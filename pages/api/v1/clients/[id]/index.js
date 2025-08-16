@@ -8,14 +8,9 @@ const router = createRouter();
 
 router.use(corsMiddleware);
 router.options((req, res) => res.status(200).end());
-router.use(authorization.injectAuthenticatedUser);
-router.use(authorization.requireActiveSubscription);
 
-router.get(getHandler);
-router.patch(
-  authorization.requireRole(["admin", "manager", "operator"]),
-  patchHandler,
-);
+router.get(authorization.injectAuthenticatedUser, authorization.requireActiveSubscription, getHandler);
+router.patch(authorization.injectAuthenticatedUser, authorization.requireActiveSubscription, authorization.requireRole(["admin", "manager", "operator"]), patchHandler);
 
 export default router.handler(controller.errorHandlers);
 
