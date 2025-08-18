@@ -171,6 +171,34 @@ async function updateStatus(id, newStatus, sessionToken) {
   return results.rows[0];
 }
 
+async function updateShippingBySessionToken(sessionToken, shippingMethod, shippingPrice) {
+  const results = await database.query({
+    text: `
+      UPDATE
+        carts
+      SET
+        shipping = $2,
+        shipping_price = $3,
+        updated_at = timezone('utc', now())
+      WHERE
+        session_token = $1
+        AND status = 'draft'
+      RETURNING
+        *
+      ;`,
+    values: [sessionToken, shippingMethod, shippingPrice],
+  });
+
+  if (results.rowCount === 0) {
+    throw new NotFoundError({
+      message: "Carrinho não encontrado ou vazio.",
+      action: "Verifique se existe um carrinho ativo para esta sessão.",
+    });
+  }
+
+  return results.rows;
+}
+
 async function deleteById(id, sessionToken) {
   const results = await database.query({
     text: `
@@ -211,6 +239,8 @@ async function calculateTotalsBySessionToken(sessionToken) {
         COUNT(*) as total_items,
         SUM(quantity) as total_quantity,
         SUM(price * quantity) as total_amount,
+        MAX(shipping_price) as shipping_total,
+        SUM(price * quantity) + MAX(shipping_price) as grand_total,
         currency
       FROM
         carts
@@ -274,6 +304,7 @@ const cart = {
   findBySessionToken,
   updateQuantity,
   updateStatus,
+  updateShippingBySessionToken,
   deleteById,
   clearDraftsBySessionToken,
   calculateTotalsBySessionToken,

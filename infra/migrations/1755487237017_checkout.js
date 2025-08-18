@@ -1,5 +1,5 @@
 exports.up = (pgm) => {
-  pgm.createTable("carts", {
+  pgm.createTable("checkout", {
     id: {
       type: "uuid",
       primaryKey: true,
@@ -21,12 +21,47 @@ exports.up = (pgm) => {
       notNull: true,
     },
 
-    ticket_id: {
+    user_id: {
       type: "uuid",
+      notNull: false,
+    },
+
+    client_email: {
+      type: "varchar(255)",
       notNull: true,
     },
 
-    price: {
+    payment_method: {
+      type: "varchar(100)",
+      notNull: false,
+    },
+
+    coupon_code: {
+      type: "varchar(100)",
+      notNull: false,
+    },
+
+    coupon_discount: {
+      type: "numeric(10,2)",
+      default: 0,
+    },
+
+    total_amount: {
+      type: "numeric(10,2)",
+      notNull: true,
+    },
+
+    shipping_total: {
+      type: "numeric(10,2)",
+      default: 0,
+    },
+
+    discount_total: {
+      type: "numeric(10,2)",
+      default: 0,
+    },
+
+    grand_total: {
       type: "numeric(10,2)",
       notNull: true,
     },
@@ -37,32 +72,10 @@ exports.up = (pgm) => {
       default: "BRL",
     },
 
-    quantity: {
-      type: "integer",
-      notNull: true,
-    },
-
     status: {
       type: "varchar(20)",
       notNull: true,
-      default: "draft",
-    },
-
-    payment_method: {
-      type: "varchar(100)",
-    },
-
-    shipping: {
-      type: "varchar(100)",
-    },
-
-    shipping_price: {
-      type: "numeric(10,2)",
-      default: 0,
-    },
-
-    coupon: {
-      type: "varchar(100)",
+      default: "pending",
     },
 
     created_at: {

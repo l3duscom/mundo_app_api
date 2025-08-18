@@ -45,6 +45,19 @@ import { ValidationError } from "infra/errors.js";
  *                   format: uuid
  *                   nullable: true
  *                   description: ID do evento (null se carrinho vazio)
+ *                 shipping:
+ *                   type: object
+ *                   nullable: true
+ *                   description: Informações de entrega (null se não selecionada)
+ *                   properties:
+ *                     method:
+ *                       type: string
+ *                       description: Método de entrega
+ *                       example: "home"
+ *                     price:
+ *                       type: number
+ *                       description: Preço da entrega
+ *                       example: 25.00
  *                 items:
  *                   type: array
  *                   items:
@@ -84,6 +97,7 @@ import { ValidationError } from "infra/errors.js";
  *       Os campos sessionToken, company_id e event_id são imutáveis após a primeira criação.
  *       Enviar novos itens substituirá todos os itens existentes no carrinho.
  *       Não há validação do sessionToken - aceita qualquer string única.
+ *       IMPORTANTE: O preço é buscado automaticamente do banco de dados por questões de segurança.
  *     tags:
  *       - Carts
  *     requestBody:
@@ -111,17 +125,12 @@ import { ValidationError } from "infra/errors.js";
  *                 minItems: 1
  *                 items:
  *                   type: object
- *                   required: [ticket_id, price, quantity]
+ *                   required: [ticket_id, quantity]
  *                   properties:
  *                     ticket_id:
  *                       type: string
  *                       format: uuid
- *                       description: ID do ingresso
- *                     price:
- *                       type: number
- *                       format: decimal
- *                       description: Preço unitário do ingresso
- *                       example: 100.00
+ *                       description: ID do ingresso (preço será buscado automaticamente)
  *                     quantity:
  *                       type: integer
  *                       minimum: 1
@@ -131,18 +140,16 @@ import { ValidationError } from "infra/errors.js";
  *                       type: string
  *                       maxLength: 3
  *                       default: "BRL"
- *                       description: Moeda do preço
+ *                       description: Moeda do preço (opcional - usa moeda do ingresso)
  *             example:
  *               sessionToken: "minha-sessao-123"
  *               company_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
  *               event_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
  *               items:
  *                 - ticket_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
- *                   price: 100
  *                   quantity: 2
  *                   currency: "BRL"
  *                 - ticket_id: "4fa85f64-5717-4562-b3fc-2c963f66afa7"
- *                   price: 50
  *                   quantity: 1
  *                   currency: "BRL"
  *     responses:
@@ -168,6 +175,19 @@ import { ValidationError } from "infra/errors.js";
  *                   type: string
  *                   format: uuid
  *                   description: ID do evento
+ *                 shipping:
+ *                   type: object
+ *                   nullable: true
+ *                   description: Informações de entrega (null se não selecionada)
+ *                   properties:
+ *                     method:
+ *                       type: string
+ *                       description: Método de entrega
+ *                       example: "home"
+ *                     price:
+ *                       type: number
+ *                       description: Preço da entrega
+ *                       example: 25.00
  *                 items:
  *                   type: array
  *                   items:
@@ -233,9 +253,18 @@ async function getHandler(request, response) {
     // Extract basic cart info from first item (if exists)
     let company_id = null;
     let event_id = null;
+    let shippingInfo = null;
     if (cartItems.length > 0) {
       company_id = cartItems[0].company_id;
       event_id = cartItems[0].event_id;
+      
+      // Extract shipping info from first item (all items have same shipping)
+      if (cartItems[0].shipping) {
+        shippingInfo = {
+          method: cartItems[0].shipping,
+          price: parseFloat(cartItems[0].shipping_price || 0)
+        };
+      }
     }
 
     // Transform items to simplified format
@@ -253,11 +282,14 @@ async function getHandler(request, response) {
       sessionToken: sessionToken,
       company_id: company_id,
       event_id: event_id,
+      shipping: shippingInfo,
       items: simplifiedItems,
       totals: totals.map(total => ({
         total_items: parseInt(total.total_items),
         total_quantity: parseInt(total.total_quantity),
         total_amount: parseFloat(total.total_amount),
+        shipping_total: parseFloat(total.shipping_total || 0),
+        grand_total: parseFloat(total.grand_total || total.total_amount),
         currency: total.currency
       }))
     });
@@ -329,12 +361,12 @@ async function postHandler(request, response) {
 
   // Process each item
   for (const item of items) {
-    const { ticket_id, price, quantity, currency } = item;
+    const { ticket_id, quantity, currency } = item;
 
     // Validate item fields
-    if (!ticket_id || !price || !quantity) {
+    if (!ticket_id || !quantity) {
       throw new ValidationError({
-        message: "Cada item deve ter: ticket_id, price, quantity.",
+        message: "Cada item deve ter: ticket_id, quantity.",
         action: "Verifique se todos os campos dos itens estão preenchidos.",
       });
     }
@@ -376,21 +408,14 @@ async function postHandler(request, response) {
       });
     }
 
-    // Validate ticket price matches
-    if (Number(ticketData.price) !== Number(price)) {
-      throw new ValidationError({
-        message: `O preço informado para o ingresso ${ticketData.name} não confere com o preço atual.`,
-        action: "Atualize a página e tente novamente.",
-      });
-    }
-
+    // Use ticket price from database (secure)
     const cartInputValues = {
       company_id,
       event_id,
       ticket_id,
-      price: Number(price),
+      price: Number(ticketData.price),
       quantity: Number(quantity),
-      currency: currency || "BRL"
+      currency: ticketData.currency || currency || "BRL"
     };
 
     const newCartItem = await cart.createBySessionToken(cartInputValues, sessionToken);
@@ -400,6 +425,15 @@ async function postHandler(request, response) {
   // Return cart summary
   const cartItems = await cart.findBySessionToken(sessionToken);
   const totals = await cart.calculateTotalsBySessionToken(sessionToken);
+
+  // Extract shipping info from cart items
+  let shippingInfo = null;
+  if (cartItems.length > 0 && cartItems[0].shipping) {
+    shippingInfo = {
+      method: cartItems[0].shipping,
+      price: parseFloat(cartItems[0].shipping_price || 0)
+    };
+  }
 
   // Transform items to simplified format
   const simplifiedItems = cartItems.map(item => ({
@@ -414,11 +448,14 @@ async function postHandler(request, response) {
       sessionToken: sessionToken,
       company_id: company_id,
       event_id: event_id,
+      shipping: shippingInfo,
       items: simplifiedItems,
       totals: totals.map(total => ({
         total_items: parseInt(total.total_items),
         total_quantity: parseInt(total.total_quantity),
         total_amount: parseFloat(total.total_amount),
+        shipping_total: parseFloat(total.shipping_total || 0),
+        grand_total: parseFloat(total.grand_total || total.total_amount),
         currency: total.currency
       }))
     });
